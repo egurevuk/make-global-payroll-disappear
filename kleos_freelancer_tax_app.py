@@ -25,30 +25,62 @@ st.set_page_config(page_title="Kleos — Freelancer Tax Explorer", page_icon="�
 st.markdown(
     """
     <style>
-      .block-container {padding-top: 2rem; max-width: 1250px;}
-      .kleos-title {font-size: 2rem; font-weight: 800; color: #1F3A5F; margin-bottom: .1rem;}
-      .kleos-sub {color: #5b6b7e; font-size: .95rem; margin-bottom: 1rem;}
-      .pill {display:inline-block; padding:2px 10px; border-radius:12px; font-size:.72rem;
-             font-weight:700; letter-spacing:.02em;}
-      .pill-self {background:#E3F0FB; color:#1F3A5F;}
-      .pill-co {background:#FBF1E0; color:#8a5a00;}
-      .card {border:1px solid #e3e8ee; border-radius:14px; padding:18px 20px; margin-bottom:14px;
-             background:#ffffff;}
-      .card-co {background:#FCF7EE;}
-      .small {color:#5b6b7e; font-size:.85rem;}
-      .auth a {margin-right:14px; font-size:.85rem;}
-      .warn {background:#FFF3CD; border:1px solid #ffe08a; border-radius:8px; padding:8px 12px;
-             color:#7a5b00; font-size:.85rem;}
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+      :root{
+        --ink:#0F1B2D; --green:#16B364; --green-d:#0C8A4B; --orange:#FF7A33;
+        --yellow:#FFC83D; --blue:#2E6BFF; --cream:#FBF7EE; --border:#E8E3D6;
+        --muted:#5b6b7e;
+      }
+      .stApp { background: var(--cream); }
+      html, body, [class*="css"] { font-family:'Inter', sans-serif; color: var(--ink); }
+      .block-container { padding-top: 1.4rem; max-width: 1180px; }
+      h1,h2,h3,h4 { font-family:'Space Grotesk', sans-serif; color: var(--ink); letter-spacing:-.01em; }
+
+      .kleos-wordmark { font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.15rem;
+                        color: var(--green); letter-spacing:.01em; margin-bottom:.2rem; }
+      .kleos-wordmark span { color: var(--ink); }
+      .kleos-title { font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:2.3rem;
+                     color: var(--ink); line-height:1.04; margin:.1rem 0; }
+      .kleos-accent { color: var(--green); }
+      .kleos-rule { height:4px; width:68px; background: var(--green); border-radius:4px; margin:.55rem 0 1.0rem; }
+      .kleos-sub { color: var(--muted); font-size:1rem; max-width:780px; margin-bottom:.6rem; }
+
+      .pill { display:inline-block; padding:3px 11px; border-radius:999px; font-size:.68rem;
+              font-weight:700; letter-spacing:.05em; }
+      .pill-self { background:#DCF3E6; color: var(--green-d); }
+      .pill-co { background:#FFE7D0; color:#B5601A; }
+
+      .card { border:1px solid var(--border); border-left:5px solid var(--green); border-radius:16px;
+              padding:18px 22px; margin-bottom:14px; background:#ffffff;
+              box-shadow:0 1px 2px rgba(15,27,45,.04); }
+      .card-co { background:#FFF9F0; border-left:5px solid var(--orange); }
+
+      .small { color: var(--muted); font-size:.86rem; }
+      .auth a { margin-right:14px; font-size:.85rem; color: var(--green-d); font-weight:600; text-decoration:none; }
+      .auth a:hover { text-decoration:underline; }
+      .warn { background:#FFF3CD; border:1px solid #FFE08A; border-radius:10px; padding:8px 12px;
+              color:#8a5b00; font-size:.85rem; }
+      .note-band { background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px 16px; }
+
+      [data-testid="stMetricValue"] { font-family:'Space Grotesk', sans-serif; color: var(--ink); }
+      [data-testid="stMetricLabel"] { color: var(--muted); }
+      .stButton>button, .stDownloadButton>button { background: var(--green); color:#fff; border:none;
+              border-radius:10px; font-weight:600; }
+      section[data-testid="stSidebar"] { background:#fff; border-right:1px solid var(--border); }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="kleos-title">Kleos — Freelancer Hiring &amp; Tax Explorer</div>', unsafe_allow_html=True)
+st.markdown('<div class="kleos-wordmark">kleos<span>.</span></div>', unsafe_allow_html=True)
+st.markdown('<div class="kleos-title">Freelancer Tax <span class="kleos-accent">Explorer</span></div>',
+            unsafe_allow_html=True)
+st.markdown('<div class="kleos-rule"></div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="kleos-sub">Pick a country and the monthly amount paid to a freelancer. '
-    'See each legal-entity / tax-regime option, the freelancer\'s tax &amp; social burden, '
-    'net take-home, limits, and how to avoid misclassification as an employee.</div>',
+    '<div class="kleos-sub">Pick a country and what you pay a freelancer. See every self-employed / '
+    'sole-entrepreneur option, the tax &amp; social burden, net take-home, limits, and how to avoid '
+    'misclassification. <b>Global payroll — without the back office.</b></div>',
     unsafe_allow_html=True,
 )
 

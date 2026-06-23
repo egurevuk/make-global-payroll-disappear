@@ -1,0 +1,8 @@
+# Kleos brand theme (matches kleos.io)
+[theme]
+base = "light"
+primaryColor = "#16B364"          # Kleos green — buttons, progress bars, accents
+backgroundColor = "#FBF7EE"       # warm cream page background
+secondaryBackgroundColor = "#FFFFFF"  # cards, sidebar
+textColor = "#0F1B2D"             # dark navy ink
+font = "sans serif"
