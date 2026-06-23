@@ -487,16 +487,23 @@ df = pd.DataFrame([{
     "Tax + social (€/yr)": round(r["tax"] + r["social"]),
     "Net to freelancer (€/yr)": round(r["net"]),
     "Net (€/mo)": round(r["net"] / 12),
-    "Effective rate": r["eff"] / 100,
+    "Effective rate": r["eff"],
 } for r in computed])
 
 c1, c2 = st.columns([3, 2])
 with c1:
     st.dataframe(
-        df.style.format({"Tax + social (€/yr)": "€{:,.0f}", "Net to freelancer (€/yr)": "€{:,.0f}",
-                         "Net (€/mo)": "€{:,.0f}", "Effective rate": "{:.1%}"})
-                 .background_gradient(subset=["Net to freelancer (€/yr)"], cmap="Greens"),
+        df,
         use_container_width=True, hide_index=True,
+        column_config={
+            "Tax + social (€/yr)": st.column_config.NumberColumn("Tax + social (€/yr)", format="€%d"),
+            "Net (€/mo)": st.column_config.NumberColumn("Net (€/mo)", format="€%d"),
+            "Effective rate": st.column_config.NumberColumn("Effective rate", format="%.1f%%"),
+            "Net to freelancer (€/yr)": st.column_config.ProgressColumn(
+                "Net to freelancer (€/yr)", format="€%d",
+                min_value=0, max_value=int(df["Net to freelancer (€/yr)"].max()),
+            ),
+        },
     )
 with c2:
     st.caption("Net take-home to the freelancer (€/yr)")
