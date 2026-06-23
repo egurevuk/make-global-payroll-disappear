@@ -490,24 +490,19 @@ df = pd.DataFrame([{
     "Effective rate": r["eff"],
 } for r in computed])
 
-c1, c2 = st.columns([3, 2])
-with c1:
-    st.dataframe(
-        df,
-        use_container_width=True, hide_index=True,
-        column_config={
-            "Tax + social (€/yr)": st.column_config.NumberColumn("Tax + social (€/yr)", format="€%d"),
-            "Net (€/mo)": st.column_config.NumberColumn("Net (€/mo)", format="€%d"),
-            "Effective rate": st.column_config.NumberColumn("Effective rate", format="%.1f%%"),
-            "Net to freelancer (€/yr)": st.column_config.ProgressColumn(
-                "Net to freelancer (€/yr)", format="€%d",
-                min_value=0, max_value=int(df["Net to freelancer (€/yr)"].max()),
-            ),
-        },
-    )
-with c2:
-    st.caption("Net take-home to the freelancer (€/yr)")
-    st.bar_chart(df.set_index("Option")["Net to freelancer (€/yr)"], height=260)
+st.dataframe(
+    df,
+    use_container_width=True, hide_index=True,
+    column_config={
+        "Tax + social (€/yr)": st.column_config.NumberColumn("Tax + social (€/yr)", format="€%d"),
+        "Net (€/mo)": st.column_config.NumberColumn("Net (€/mo)", format="€%d"),
+        "Effective rate": st.column_config.NumberColumn("Effective rate", format="%.1f%%"),
+        "Net to freelancer (€/yr)": st.column_config.ProgressColumn(
+            "Net to freelancer (€/yr)", format="€%d",
+            min_value=0, max_value=int(df["Net to freelancer (€/yr)"].max()),
+        ),
+    },
+)
 
 best = df.loc[df["Net to freelancer (€/yr)"].idxmax(), "Option"]
 st.success(f"Most tax-efficient at €{monthly_eur:,.0f}/mo: **{best}** "
