@@ -550,7 +550,7 @@ df = pd.DataFrame([{
 
 def _grey_unavailable(row):
     if not avail[row.name]:
-        return ["color:#9aa4b0; font-style:italic"] * len(row)
+        return ["color:#9aa4b0"] * len(row)
     return [""] * len(row)
 
 
