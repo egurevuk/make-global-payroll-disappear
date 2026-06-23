@@ -538,8 +538,7 @@ for o in C["options"]:
 st.markdown("### Compare options")
 avail = [r["available"] for r in computed]
 df = pd.DataFrame([{
-    "": "🔴" if not r["available"] else "",
-    "Option": r["name"],
+    "Option": ("🔴  " if not r["available"] else "") + r["name"],
     "Type": "Company" if r["kind"] == "company" else "Self-employed",
     "Tax + social (€/yr)": round(r["tax"] + r["social"]),
     "Net to freelancer (€/yr)": round(r["net"]),
@@ -562,11 +561,8 @@ table_styles = [
                                   ("padding", "8px 12px"), ("border-bottom", "1px solid #E8E3D6"),
                                   ("background", "transparent")]},
     {"selector": "td", "props": [("padding", "8px 12px"), ("border-bottom", "1px solid #F0EBDF")]},
-    # narrow, centered status (dot) column
-    {"selector": "th:nth-child(1), td:nth-child(1)",
-     "props": [("width", "28px"), ("text-align", "center"), ("padding", "8px 4px")]},
-    # right-align the numeric columns (4th onward)
-    {"selector": "th:nth-child(n+4), td:nth-child(n+4)", "props": [("text-align", "right")]},
+    # right-align the numeric columns (3rd onward)
+    {"selector": "th:nth-child(n+3), td:nth-child(n+3)", "props": [("text-align", "right")]},
 ]
 styler = (
     df.style
