@@ -556,16 +556,15 @@ def _grey_unavailable(row):
 
 table_styles = [
     {"selector": "table", "props": [("width", "100%"), ("border-collapse", "collapse"),
-                                     ("font-family", "Inter, sans-serif"), ("font-size", "0.9rem")]},
-    {"selector": "th", "props": [("font-family", "Space Grotesk, sans-serif"), ("font-weight", "700"),
-                                  ("text-align", "left"), ("padding", "10px 12px"),
-                                  ("border-bottom", "2px solid #E8E3D6"), ("color", "#0F1B2D"),
-                                  ("background", "#F4EFE3")]},
-    {"selector": "td", "props": [("padding", "9px 12px"), ("border-bottom", "1px solid #EFEADD"),
-                                  ("color", "#0F1B2D")]},
+                                     ("font-family", "inherit"), ("font-size", "0.875rem"),
+                                     ("color", "#0F1B2D")]},
+    {"selector": "th", "props": [("text-align", "left"), ("font-weight", "600"), ("color", "#5b6b7e"),
+                                  ("padding", "8px 12px"), ("border-bottom", "1px solid #E8E3D6"),
+                                  ("background", "transparent")]},
+    {"selector": "td", "props": [("padding", "8px 12px"), ("border-bottom", "1px solid #F0EBDF")]},
     # narrow, centered status (dot) column
     {"selector": "th:nth-child(1), td:nth-child(1)",
-     "props": [("width", "30px"), ("text-align", "center"), ("white-space", "nowrap")]},
+     "props": [("width", "28px"), ("text-align", "center"), ("padding", "8px 4px")]},
     # right-align the numeric columns (4th onward)
     {"selector": "th:nth-child(n+4), td:nth-child(n+4)", "props": [("text-align", "right")]},
 ]
