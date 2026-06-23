@@ -554,13 +554,30 @@ def _grey_unavailable(row):
     return [""] * len(row)
 
 
+table_styles = [
+    {"selector": "table", "props": [("width", "100%"), ("border-collapse", "collapse"),
+                                     ("font-family", "Inter, sans-serif"), ("font-size", "0.9rem")]},
+    {"selector": "th", "props": [("font-family", "Space Grotesk, sans-serif"), ("font-weight", "700"),
+                                  ("text-align", "left"), ("padding", "10px 12px"),
+                                  ("border-bottom", "2px solid #E8E3D6"), ("color", "#0F1B2D"),
+                                  ("background", "#F4EFE3")]},
+    {"selector": "td", "props": [("padding", "9px 12px"), ("border-bottom", "1px solid #EFEADD"),
+                                  ("color", "#0F1B2D")]},
+    # narrow, centered status (dot) column
+    {"selector": "th:nth-child(1), td:nth-child(1)",
+     "props": [("width", "30px"), ("text-align", "center"), ("white-space", "nowrap")]},
+    # right-align the numeric columns (4th onward)
+    {"selector": "th:nth-child(n+4), td:nth-child(n+4)", "props": [("text-align", "right")]},
+]
 styler = (
     df.style
+      .hide(axis="index")
       .apply(_grey_unavailable, axis=1)
+      .set_table_styles(table_styles)
       .format({"Tax + social (€/yr)": "€{:,.0f}", "Net to freelancer (€/yr)": "€{:,.0f}",
                "Net (€/mo)": "€{:,.0f}", "Effective rate": "{:.1f}%"})
 )
-st.dataframe(styler, use_container_width=True, hide_index=True)
+st.markdown(styler.to_html(), unsafe_allow_html=True)
 st.markdown(
     '<div class="small">🔴 = income exceeds this option\'s limit — it is <b>not available</b> at this amount '
     '(figures greyed out).</div>', unsafe_allow_html=True)
