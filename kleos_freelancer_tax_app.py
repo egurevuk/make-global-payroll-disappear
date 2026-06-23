@@ -67,7 +67,21 @@ st.markdown(
       [data-testid="stMetricLabel"] { color: var(--muted); }
       .stButton>button, .stDownloadButton>button { background: var(--green); color:#fff; border:none;
               border-radius:10px; font-weight:600; }
-      section[data-testid="stSidebar"] { background:#fff; border-right:1px solid var(--border); }
+      section[data-testid="stSidebar"] { background:#FFFFFF; border-right:1px solid var(--border); }
+      section[data-testid="stSidebar"] .block-container { padding-top:1.1rem; }
+      section[data-testid="stSidebar"] h1,
+      section[data-testid="stSidebar"] h2,
+      section[data-testid="stSidebar"] h3 { font-family:'Space Grotesk', sans-serif; color: var(--ink); }
+      section[data-testid="stSidebar"] label { color: var(--ink); font-weight:600; font-size:.9rem; }
+      section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] p { color: var(--ink); font-weight:600; }
+      section[data-testid="stSidebar"] hr { border-color: var(--border); }
+      .kleos-side-mark { font-family:'Space Grotesk', sans-serif; font-weight:700; color: var(--green);
+                         font-size:1.1rem; letter-spacing:.01em; }
+      .kleos-side-mark span { color: var(--ink); }
+      .kleos-side-cap { color: var(--muted); font-size:.8rem; margin:.1rem 0 .9rem; }
+      .kleos-side-h { font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.15rem;
+                      color: var(--ink); margin:.2rem 0 .5rem; }
+      .stSlider [data-baseweb="slider"] div[role="slider"] { background: var(--green); }
     </style>
     """,
     unsafe_allow_html=True,
@@ -455,7 +469,9 @@ COUNTRIES = {
 # Sidebar controls
 # --------------------------------------------------------------------------------------
 with st.sidebar:
-    st.header("Inputs")
+    st.markdown('<div class="kleos-side-mark">kleos<span>.</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="kleos-side-cap">Set your scenario</div>', unsafe_allow_html=True)
+    st.markdown('<div class="kleos-side-h">Inputs</div>', unsafe_allow_html=True)
     country = st.selectbox("Country", list(COUNTRIES.keys()))
     monthly_eur = st.number_input("Monthly amount paid to freelancer (EUR)",
                                   min_value=100, max_value=100000, value=3000, step=100)
@@ -529,10 +545,8 @@ st.dataframe(
         "Tax + social (€/yr)": st.column_config.NumberColumn("Tax + social (€/yr)", format="€%d"),
         "Net (€/mo)": st.column_config.NumberColumn("Net (€/mo)", format="€%d"),
         "Effective rate": st.column_config.NumberColumn("Effective rate", format="%.1f%%"),
-        "Net to freelancer (€/yr)": st.column_config.ProgressColumn(
-            "Net to freelancer (€/yr)", format="€%d",
-            min_value=0, max_value=int(df["Net to freelancer (€/yr)"].max()),
-        ),
+        "Net to freelancer (€/yr)": st.column_config.NumberColumn(
+            "Net to freelancer (€/yr)", format="€%d"),
     },
 )
 
