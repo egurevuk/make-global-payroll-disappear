@@ -50,11 +50,15 @@ st.markdown(
               font-weight:700; letter-spacing:.05em; }
       .pill-self { background:#DCF3E6; color: var(--green-d); }
       .pill-co { background:#FFE7D0; color:#B5601A; }
+      .pill-na { background:#FCE0DD; color:#C0341D; }
 
       .card { border:1px solid var(--border); border-left:5px solid var(--green); border-radius:16px;
               padding:18px 22px; margin-bottom:14px; background:#ffffff;
               box-shadow:0 1px 2px rgba(15,27,45,.04); }
       .card-co { background:#FFF9F0; border-left:5px solid var(--orange); }
+      .card-na { background:#FCF1F0; border-left:5px solid #D9534F; opacity:.85; }
+      .na-band { background:#FCE9E7; border:1px solid #F2B8B2; border-radius:10px; padding:8px 12px;
+                 color:#B23A2E; font-size:.85rem; }
 
       .small { color: var(--muted); font-size:.86rem; }
       .auth a { margin-right:14px; font-size:.85rem; color: var(--green-d); font-weight:600; text-decoration:none; }
@@ -156,7 +160,7 @@ def pt_irs(base):
 # Each takes annual gross EUR paid to the freelancer + params P.
 # Assumption: entered amount = the freelancer's gross professional income (negligible expenses).
 # --------------------------------------------------------------------------------------
-def result(kind, gross, social, tax, notes, limit_note="", warning="", extra=None):
+def result(kind, gross, social, tax, notes, limit_note="", warning="", extra=None, available=True):
     deduct = social + tax
     net = gross - deduct
     rows = [("Gross paid by company", gross)]
@@ -166,7 +170,7 @@ def result(kind, gross, social, tax, notes, limit_note="", warning="", extra=Non
              ("Net to freelancer", net)]
     return dict(kind=kind, gross=gross, social=social, tax=tax, net=net,
                 eff=(deduct / gross * 100 if gross else 0), rows=rows,
-                notes=notes, limit_note=limit_note, warning=warning)
+                notes=notes, limit_note=limit_note, warning=warning, available=available)
 
 
 # ---- Spain --------------------------------------------------------------------------
@@ -259,7 +263,8 @@ def ge_micro(gross, P):
         warn = "Turnover exceeds GEL 30,000 — Micro Business Status does not apply at this income; use SBS (1%) instead."
     return result("self", gross, 0.0, 0.0,
                   "0% on business turnover. No personal social contributions.",
-                  limit_note="Turnover < GEL 30,000/yr; no employees allowed.", warning=warn)
+                  limit_note="Turnover < GEL 30,000/yr; no employees allowed.", warning=warn,
+                  available=(rev <= 30000))
 
 
 def ge_general(gross, P):
@@ -288,7 +293,8 @@ def rs_pausal(gross, P):
                   f"Paušal = a FIXED monthly obligation (tax + all social contributions), set by the Tax Administration "
                   f"by formula (activity, municipality, age). Editable in the sidebar — default RSD {P['rs_pausal_month']:,.0f}/mo. "
                   "Because it is fixed, the effective rate falls as income rises.",
-                  limit_note="Annual income cap RSD 6,000,000; cannot be a VAT payer.", warning=warn)
+                  limit_note="Annual income cap RSD 6,000,000; cannot be a VAT payer.", warning=warn,
+                  available=(rev <= 6000000))
 
 
 def rs_books(gross, P):
@@ -326,7 +332,8 @@ def kz_selfemp(gross, P):
     return result("self", gross, social, 0.0,
                   "Self-employed STR: 0% individual income tax + ~4% social payments (≈1% each: pension, social, "
                   "health, employer-pension). App-based (e-Salyq Business), no filing.",
-                  limit_note=f"Income ≤ 300 MCI/month (~KZT {300*MCI:,.0f}). Cannot register for VAT.", warning=warn)
+                  limit_note=f"Income ≤ 300 MCI/month (~KZT {300*MCI:,.0f}). Cannot register for VAT.", warning=warn,
+                  available=(rev / 12 <= 300 * MCI))
 
 
 def kz_simplified(gross, P):
@@ -529,7 +536,9 @@ for o in C["options"]:
 # Comparison summary
 # --------------------------------------------------------------------------------------
 st.markdown("### Compare options")
+avail = [r["available"] for r in computed]
 df = pd.DataFrame([{
+    "": "🔴" if not r["available"] else "",
     "Option": r["name"],
     "Type": "Company" if r["kind"] == "company" else "Self-employed",
     "Tax + social (€/yr)": round(r["tax"] + r["social"]),
@@ -538,21 +547,32 @@ df = pd.DataFrame([{
     "Effective rate": r["eff"],
 } for r in computed])
 
-st.dataframe(
-    df,
-    use_container_width=True, hide_index=True,
-    column_config={
-        "Tax + social (€/yr)": st.column_config.NumberColumn("Tax + social (€/yr)", format="€%d"),
-        "Net (€/mo)": st.column_config.NumberColumn("Net (€/mo)", format="€%d"),
-        "Effective rate": st.column_config.NumberColumn("Effective rate", format="%.1f%%"),
-        "Net to freelancer (€/yr)": st.column_config.NumberColumn(
-            "Net to freelancer (€/yr)", format="€%d"),
-    },
-)
 
-best = df.loc[df["Net to freelancer (€/yr)"].idxmax(), "Option"]
-st.success(f"Most tax-efficient at €{monthly_eur:,.0f}/mo: **{best}** "
-           f"(net €{df['Net to freelancer (€/yr)'].max():,.0f}/yr). Verify against the specific contractor's situation.")
+def _grey_unavailable(row):
+    if not avail[row.name]:
+        return ["color:#9aa4b0; font-style:italic"] * len(row)
+    return [""] * len(row)
+
+
+styler = (
+    df.style
+      .apply(_grey_unavailable, axis=1)
+      .format({"Tax + social (€/yr)": "€{:,.0f}", "Net to freelancer (€/yr)": "€{:,.0f}",
+               "Net (€/mo)": "€{:,.0f}", "Effective rate": "{:.1f}%"})
+)
+st.dataframe(styler, use_container_width=True, hide_index=True)
+st.markdown(
+    '<div class="small">🔴 = income exceeds this option\'s limit — it is <b>not available</b> at this amount '
+    '(figures greyed out).</div>', unsafe_allow_html=True)
+
+avail_df = df[pd.Series(avail, index=df.index)]
+if not avail_df.empty:
+    bidx = avail_df["Net to freelancer (€/yr)"].idxmax()
+    st.success(f"Most tax-efficient available option at €{monthly_eur:,.0f}/mo: "
+               f"**{df.loc[bidx, 'Option']}** (net €{df.loc[bidx, 'Net to freelancer (€/yr)']:,.0f}/yr). "
+               "Verify against the specific contractor's situation.")
+else:
+    st.warning("No listed option is available at this income — consider an Employer of Record / local entity.")
 
 # --------------------------------------------------------------------------------------
 # Detail cards
@@ -560,9 +580,11 @@ st.success(f"Most tax-efficient at €{monthly_eur:,.0f}/mo: **{best}** "
 st.markdown("### Option details")
 for r in computed:
     co = r["kind"] == "company"
+    na = not r["available"]
     pill = '<span class="pill pill-co">COMPANY</span>' if co else '<span class="pill pill-self">SELF-EMPLOYED</span>'
-    st.markdown(f'<div class="card {"card-co" if co else ""}">', unsafe_allow_html=True)
-    st.markdown(f"**{r['name']}** &nbsp; {pill}", unsafe_allow_html=True)
+    na_pill = ' <span class="pill pill-na">🔴 NOT AVAILABLE</span>' if na else ''
+    st.markdown(f'<div class="card {"card-na" if na else ("card-co" if co else "")}">', unsafe_allow_html=True)
+    st.markdown(f"**{r['name']}** &nbsp; {pill}{na_pill}", unsafe_allow_html=True)
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Net to freelancer", eur(r["net"]), f"{eur(r['net']/12)}/mo")
@@ -571,7 +593,8 @@ for r in computed:
     m4.metric("Effective rate", f"{r['eff']:.1f}%")
 
     if r["warning"]:
-        st.markdown(f'<div class="warn">⚠ {r["warning"]}</div>', unsafe_allow_html=True)
+        cls, icon = ("na-band", "🔴") if na else ("warn", "⚠")
+        st.markdown(f'<div class="{cls}">{icon} {r["warning"]}</div>', unsafe_allow_html=True)
 
     st.markdown(f'<div class="small" style="margin-top:8px;">{r["notes"]}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="small"><b>Limits:</b> {r["limit_note"]}</div>', unsafe_allow_html=True)
